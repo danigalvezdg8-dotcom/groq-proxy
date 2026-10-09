@@ -105,29 +105,3 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-}}"""
-
-    response = requests.post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
-        json={"model": "llama-3.1-8b-instant", "messages": [{"role": "user", "content": prompt}], "max_tokens": 400, "temperature": 0.3},
-        timeout=15
-    )
-
-    if response.status_code != 200:
-        return jsonify({"error": "Groq error"}), 500
-
-    import json, re
-    content = response.json()["choices"][0]["message"]["content"].strip()
-    match = re.search(r'\{.*\}', content, re.DOTALL)
-    if not match:
-        return jsonify({"error": "Parse error"}), 500
-
-    return jsonify(json.loads(match.group()))
-
-@app.route("/", methods=["GET"])
-def health():
-    return "OK", 200
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
